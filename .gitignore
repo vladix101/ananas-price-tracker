@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# the template must stay in the repo — .env* above would swallow it
+!.env.local.example
+
+# python scraper
+__pycache__/
+*.py[cod]
+scraper/.venv/
+scraper/.env
+
+# supabase cli
+.supabase/
+supabase/.branches/
+supabase/.temp/

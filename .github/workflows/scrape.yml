@@ -1,0 +1,47 @@
+name: Scrape prices
+
+on:
+  schedule:
+    # Every 6 hours. Minute 17 rather than 0 — GitHub's shared cron queue is
+    # busiest on the hour, and jobs there start late or get dropped.
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Scrape and record prices, but do not send email'
+        type: boolean
+        default: false
+
+concurrency:
+  # A slow run must never overlap the next scheduled one and double-write
+  # price_history.
+  group: scrape-prices
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        working-directory: scraper
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scraper/requirements.txt
+
+      - run: pip install -r requirements.txt
+
+      - name: Run scraper
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python run.py ${{ inputs.dry_run && '--dry-run' || '' }}
