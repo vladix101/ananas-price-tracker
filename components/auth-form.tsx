@@ -10,8 +10,12 @@ type Props = {
   action: (prev: AuthState, formData: FormData) => Promise<AuthState>
   /** Path to return to after a successful login. */
   next?: string
-  /** Error surfaced by a redirect (e.g. an expired confirmation link). */
-  initialError?: string
+  /**
+   * Message carried in by a redirect. Tone matters: "mejl je potvrđen" is a
+   * success and must not be painted like a failure, which is exactly what an
+   * earlier version did.
+   */
+  initialMessage?: { text: string; tone: 'error' | 'success' }
 }
 
 const COPY = {
@@ -40,10 +44,14 @@ const COPY = {
 const INPUT =
   'tap w-full rounded-card border border-line bg-surface px-3.5 outline-none transition-colors placeholder:text-fg-subtle focus:border-fg-muted'
 
-export function AuthForm({ mode, action, next, initialError }: Props) {
+export function AuthForm({ mode, action, next, initialMessage }: Props) {
   const [state, formAction, isPending] = useActionState(action, {} as AuthState)
   const copy = COPY[mode]
-  const error = state.error ?? initialError
+
+  // A fresh submit error always wins over whatever the redirect said.
+  const message: Props['initialMessage'] = state.error
+    ? { text: state.error, tone: 'error' }
+    : initialMessage
 
   // Once the confirmation mail is out, the form is done — leaving it on screen
   // invites a second submit that only produces "user already registered".
@@ -100,12 +108,17 @@ export function AuthForm({ mode, action, next, initialError }: Props) {
           />
         </label>
 
-        {error ? (
+        {message ? (
           <p
-            role="alert"
-            className="anim-rise rounded-md bg-surface-2 px-3 py-2 text-[13px] text-danger"
+            role={message.tone === 'error' ? 'alert' : 'status'}
+            className={`anim-rise flex items-start gap-2 rounded-md px-3 py-2 text-[13px] ${
+              message.tone === 'error'
+                ? 'bg-danger-soft text-danger'
+                : 'bg-good-soft text-good'
+            }`}
           >
-            {error}
+            <span aria-hidden="true">{message.tone === 'error' ? '!' : '✓'}</span>
+            <span>{message.text}</span>
           </p>
         ) : null}
 

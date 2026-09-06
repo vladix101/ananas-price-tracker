@@ -3,53 +3,40 @@
 /* ---------------------------------------------------------------------------
    Palette
 
-   Neutral warm greys carry the interface; one accent does the talking.
-   Amber is a nod to the "ananas" the site is named for, kept to badges and
-   highlights where it never has to carry body text.
-   Green is reserved — it means "the price went down", nothing else, so it
-   still reads as good news when it appears.
+   Light only, on purpose. The earlier warm-grey scheme flipped to a dark theme
+   with the OS setting and read as murky; `color-scheme: light` below also keeps
+   native controls (inputs, scrollbars, autofill) light on a dark-mode phone,
+   which is where the mismatch was most visible.
+
+   Neutral greys carry everything. Two colours are allowed to speak, and each
+   means exactly one thing:
+     amber — this item is discounted
+     green — good news (price fell, action succeeded)
+   Red is failure only, so it never has to compete with either.
    --------------------------------------------------------------------------- */
 
 :root {
-  --bg: #fbfbfa;
+  color-scheme: light;
+
+  --bg: #ffffff;
   --surface: #ffffff;
-  --surface-2: #f5f5f4;
-  --fg: #1c1917;
-  --fg-muted: #78716c;
-  --fg-subtle: #a8a29e;
-  --line: #e7e5e4;
-  --line-strong: #d6d3d1;
+  --surface-2: #f4f4f5;
+  --fg: #18181b;
+  --fg-muted: #71717a;
+  --fg-subtle: #a1a1aa;
+  --line: #e4e4e7;
+  --line-strong: #d4d4d8;
 
   --accent: #b45309;
   --accent-soft: #fef3c7;
-  --accent-fg: #78350f;
+  --accent-fg: #92400e;
 
   --good: #15803d;
   --good-soft: #dcfce7;
   --danger: #b91c1c;
+  --danger-soft: #fee2e2;
 
   --radius: 0.625rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0c0a09;
-    --surface: #16130f;
-    --surface-2: #1c1917;
-    --fg: #fafaf9;
-    --fg-muted: #a8a29e;
-    --fg-subtle: #78716c;
-    --line: #292524;
-    --line-strong: #44403c;
-
-    --accent: #fbbf24;
-    --accent-soft: #292013;
-    --accent-fg: #fcd34d;
-
-    --good: #4ade80;
-    --good-soft: #14261a;
-    --danger: #f87171;
-  }
 }
 
 @theme inline {
@@ -67,6 +54,7 @@
   --color-good: var(--good);
   --color-good-soft: var(--good-soft);
   --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

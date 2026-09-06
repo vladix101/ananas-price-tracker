@@ -16,7 +16,7 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
         >
           <span
             aria-hidden="true"
-            className="grid size-7 shrink-0 place-items-center rounded-md bg-accent-soft text-sm text-accent-fg"
+            className="grid size-7 shrink-0 place-items-center rounded-md bg-fg text-sm text-bg"
           >
             ◎
           </span>

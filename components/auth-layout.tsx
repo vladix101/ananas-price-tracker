@@ -20,7 +20,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
       >
         <span
           aria-hidden="true"
-          className="grid size-7 place-items-center rounded-md bg-accent-soft text-sm text-accent-fg"
+          className="grid size-7 place-items-center rounded-md bg-fg text-sm text-bg"
         >
           ◎
         </span>
