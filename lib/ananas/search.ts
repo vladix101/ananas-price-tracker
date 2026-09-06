@@ -30,9 +30,13 @@ export const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
 
 const REQUEST_TIMEOUT_MS = 12_000
-const MAX_RESULTS = 24
-/** How many sale items the homepage grid shows. */
-const SALE_COUNT = 12
+
+/**
+ * Hard ceiling, not a display count. Both listings return 48 hits in a single
+ * response, so returning all of them costs nothing extra — the caller decides
+ * how many to show, and "pogledaj još" is then a slice, not another request.
+ */
+const MAX_RESULTS = 48
 
 /**
  * The results are handed to the browser as an assignment to a Symbol-keyed
@@ -156,7 +160,6 @@ function toProduct(hit: AlgoliaHit): AnanasProduct | null {
 async function fetchProducts(
   url: URL,
   revalidateSeconds: number,
-  limit: number,
 ): Promise<AnanasProduct[]> {
   let response: Response
   try {
@@ -206,7 +209,7 @@ async function fetchProducts(
   if (!Array.isArray(hits)) return []
 
   return hits
-    .slice(0, limit)
+    .slice(0, MAX_RESULTS)
     .map((hit) => toProduct(hit as AlgoliaHit))
     .filter((product): product is AnanasProduct => product !== null)
 }
@@ -221,7 +224,7 @@ export async function searchAnanas(query: string): Promise<AnanasProduct[]> {
 
   // Short window: a shopper who searches twice in a minute wants the same
   // answer, but a price from an hour ago would be misleading.
-  return fetchProducts(url, 300, MAX_RESULTS)
+  return fetchProducts(url, 300)
 }
 
 /**
@@ -231,6 +234,6 @@ export async function searchAnanas(query: string): Promise<AnanasProduct[]> {
  * Cached for half an hour: it is the same for everyone and the sale board does
  * not turn over by the minute.
  */
-export async function saleProducts(limit = SALE_COUNT): Promise<AnanasProduct[]> {
-  return fetchProducts(new URL(SALE_URL), 1800, limit)
+export async function saleProducts(): Promise<AnanasProduct[]> {
+  return fetchProducts(new URL(SALE_URL), 1800)
 }

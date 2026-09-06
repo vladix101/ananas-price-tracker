@@ -10,12 +10,22 @@ import { getCurrentUser } from '@/lib/auth'
 import { AnanasScrapeError, saleProducts, searchAnanas } from '@/lib/ananas/search'
 import { activeTrackedUrls } from '@/lib/tracking'
 
-type SearchParams = Promise<{ q?: string }>
+type SearchParams = Promise<{ q?: string; vise?: string }>
+
+/**
+ * How many products each grid shows before "pogledaj još".
+ *
+ * Both listings arrive 48-at-a-time in one cached response, so expanding is a
+ * bigger slice of data we already hold — no second request to ananas.rs.
+ */
+const INITIAL_SALE = 12
+const INITIAL_SEARCH = 24
 
 export default async function HomePage({ searchParams }: { searchParams: SearchParams }) {
-  const [user, { q }] = await Promise.all([getCurrentUser(), searchParams])
+  const [user, { q, vise }] = await Promise.all([getCurrentUser(), searchParams])
   const query = q?.trim() ?? ''
   const signedIn = user !== null
+  const expanded = vise === '1'
 
   return (
     <>
@@ -70,12 +80,12 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
 
         {query ? (
           // key: a new query must restart the boundary, not reuse the resolved one
-          <Suspense key={query} fallback={<GridSkeleton count={8} label={`Tražim „${query}”…`} />}>
-            <SearchResults query={query} signedIn={signedIn} />
+          <Suspense key={`${query}-${expanded}`} fallback={<GridSkeleton count={8} label={`Tražim „${query}”…`} />}>
+            <SearchResults query={query} signedIn={signedIn} expanded={expanded} />
           </Suspense>
         ) : (
           <Suspense fallback={<GridSkeleton count={12} label="Učitavam sniženja…" />}>
-            <SaleSection signedIn={signedIn} />
+            <SaleSection signedIn={signedIn} expanded={expanded} />
           </Suspense>
         )}
       </main>
@@ -106,6 +116,25 @@ function Section({
   )
 }
 
+/**
+ * A plain link, not a button with client state: it keeps the expanded view
+ * shareable and bookmarkable, works without JavaScript, and needs no
+ * "loading" state because nothing is fetched.
+ */
+function ShowMore({ href, remaining }: { href: string; remaining: number }) {
+  return (
+    <div className="mt-7 flex justify-center">
+      <a
+        href={href}
+        className="press tap inline-flex items-center gap-2 rounded-xl border border-line bg-surface px-5 text-sm font-medium transition-colors sm:hover:border-line-strong sm:hover:bg-surface-2"
+      >
+        Pogledaj još {remaining}
+        <span aria-hidden="true">↓</span>
+      </a>
+    </div>
+  )
+}
+
 function Grid({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3.5 lg:grid-cols-4">
@@ -120,7 +149,7 @@ function Grid({ children }: { children: React.ReactNode }) {
  * in its place — already-discounted items are also the ones most worth
  * watching.
  */
-async function SaleSection({ signedIn }: { signedIn: boolean }) {
+async function SaleSection({ signedIn, expanded }: { signedIn: boolean; expanded: boolean }) {
   let products
   try {
     products = await saleProducts()
@@ -133,11 +162,13 @@ async function SaleSection({ signedIn }: { signedIn: boolean }) {
   if (products.length === 0) return null
 
   const tracked = signedIn ? await activeTrackedUrls() : new Set<string>()
+  const shown = expanded ? products : products.slice(0, INITIAL_SALE)
+  const remaining = products.length - shown.length
 
   return (
     <Section title="Trenutno na sniženju" hint="sa ananas.rs">
       <Grid>
-        {products.map((product, index) => (
+        {shown.map((product, index) => (
           <ProductCard
             key={product.id}
             product={product}
@@ -152,11 +183,20 @@ async function SaleSection({ signedIn }: { signedIn: boolean }) {
           />
         ))}
       </Grid>
+      {remaining > 0 ? <ShowMore href="/?vise=1" remaining={remaining} /> : null}
     </Section>
   )
 }
 
-async function SearchResults({ query, signedIn }: { query: string; signedIn: boolean }) {
+async function SearchResults({
+  query,
+  signedIn,
+  expanded,
+}: {
+  query: string
+  signedIn: boolean
+  expanded: boolean
+}) {
   let products
   try {
     products = await searchAnanas(query)
@@ -190,11 +230,16 @@ async function SearchResults({ query, signedIn }: { query: string; signedIn: boo
   }
 
   const tracked = signedIn ? await activeTrackedUrls() : new Set<string>()
+  const shown = expanded ? products : products.slice(0, INITIAL_SEARCH)
+  const remaining = products.length - shown.length
 
   return (
-    <Section title={`Rezultati za „${query}”`} hint={`${products.length} proizvoda`}>
+    <Section
+      title={`Rezultati za „${query}”`}
+      hint={`${shown.length} od ${products.length}`}
+    >
       <Grid>
-        {products.map((product, index) => (
+        {shown.map((product, index) => (
           <ProductCard
             key={product.id}
             product={product}
@@ -209,6 +254,12 @@ async function SearchResults({ query, signedIn }: { query: string; signedIn: boo
           />
         ))}
       </Grid>
+      {remaining > 0 ? (
+        <ShowMore
+          href={`/?q=${encodeURIComponent(query)}&vise=1`}
+          remaining={remaining}
+        />
+      ) : null}
     </Section>
   )
 }
