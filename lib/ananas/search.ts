@@ -1,17 +1,19 @@
 import 'server-only'
 
 /**
- * Scrapes ananas.rs's own search results page.
+ * Scrapes ananas.rs's own listing pages.
  *
  * Verified against the live site 2026-09-06:
  *   - /search?query=<term>  ("/pretraga" 404s, "?q=" 502s)
- *   - the page is server-rendered and ships the full Algolia result set in a
+ *   - /akcija — the sale listing, same payload, used for the homepage grid
+ *   - both are server-rendered and ship the full Algolia result set in a
  *     plain-JSON <script> block, so no headless browser is needed
- *   - robots.txt allows /search; it disallows /en/, /sr/, /tmp/image-thumbnails/
+ *   - robots.txt allows both; it disallows /en/, /sr/, /tmp/image-thumbnails/
  *     and /assets/, none of which this module requests
  */
 
 const SEARCH_URL = 'https://ananas.rs/search'
+const SALE_URL = 'https://ananas.rs/akcija'
 const PRODUCT_BASE = 'https://ananas.rs/proizvod'
 const ASSET_BASE = 'https://ananas.rs'
 
@@ -24,6 +26,8 @@ export const USER_AGENT =
 
 const REQUEST_TIMEOUT_MS = 12_000
 const MAX_RESULTS = 24
+/** How many sale items the homepage grid shows. */
+const SALE_COUNT = 12
 
 /**
  * The results are handed to the browser as an assignment to a Symbol-keyed
@@ -131,13 +135,18 @@ function toProduct(hit: AlgoliaHit): AnanasProduct | null {
   }
 }
 
-export async function searchAnanas(query: string): Promise<AnanasProduct[]> {
-  const term = query.trim()
-  if (!term) return []
-
-  const url = new URL(SEARCH_URL)
-  url.searchParams.set('query', term)
-
+/**
+ * Fetch one listing page and pull the products out of it.
+ *
+ * `revalidateSeconds` is a politeness lever as much as a speed one: every
+ * visitor asking for the same page inside the window is served from Next's
+ * cache instead of hitting ananas.rs again.
+ */
+async function fetchProducts(
+  url: URL,
+  revalidateSeconds: number,
+  limit: number,
+): Promise<AnanasProduct[]> {
   let response: Response
   try {
     response = await fetch(url, {
@@ -147,8 +156,7 @@ export async function searchAnanas(query: string): Promise<AnanasProduct[]> {
         'Accept-Language': 'sr-RS,sr;q=0.9,en;q=0.8',
       },
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      // Their prices move; a stale cached search would defeat the point.
-      cache: 'no-store',
+      next: { revalidate: revalidateSeconds },
     })
   } catch (cause) {
     throw new AnanasScrapeError('Ananas.rs se ne javlja.', { cause })
@@ -187,7 +195,31 @@ export async function searchAnanas(query: string): Promise<AnanasProduct[]> {
   if (!Array.isArray(hits)) return []
 
   return hits
-    .slice(0, MAX_RESULTS)
+    .slice(0, limit)
     .map((hit) => toProduct(hit as AlgoliaHit))
     .filter((product): product is AnanasProduct => product !== null)
+}
+
+/** Results for a user's search term. */
+export async function searchAnanas(query: string): Promise<AnanasProduct[]> {
+  const term = query.trim()
+  if (!term) return []
+
+  const url = new URL(SEARCH_URL)
+  url.searchParams.set('query', term)
+
+  // Short window: a shopper who searches twice in a minute wants the same
+  // answer, but a price from an hour ago would be misleading.
+  return fetchProducts(url, 300, MAX_RESULTS)
+}
+
+/**
+ * The ananas.rs sale listing, shown on the homepage so a visitor who has not
+ * searched yet still has something to track.
+ *
+ * Cached for half an hour: it is the same for everyone and the sale board does
+ * not turn over by the minute.
+ */
+export async function saleProducts(limit = SALE_COUNT): Promise<AnanasProduct[]> {
+  return fetchProducts(new URL(SALE_URL), 1800, limit)
 }

@@ -20,19 +20,23 @@ export function ProductCard({
   /** Position in the grid, used to stagger the enter animation. */
   index?: number
 }) {
+  const saving = product.basePrice ? product.basePrice - product.price : 0
+
   return (
     <article
       // Results arrive together after a wait, so they enter together — the
       // stagger only keeps the grid from snapping in as one hard block. It is
       // capped in CSS so late cards are not left behind.
       style={{ '--i': index } as CSSProperties}
-      className="anim-rise anim-stagger flex flex-col overflow-hidden rounded-lg border border-neutral-200 transition-[translate,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_1px_2px_-1px_rgba(0,0,0,0.08),0_4px_12px_-2px_rgba(0,0,0,0.08)] dark:border-neutral-800 dark:hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.5)]"
+      className="anim-rise anim-stagger group flex flex-col overflow-hidden rounded-card border border-line bg-surface transition-[translate,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-line-strong hover:shadow-[0_1px_2px_-1px_rgb(0_0_0/0.07),0_8px_20px_-6px_rgb(0_0_0/0.10)]"
     >
       <a
         href={product.url}
         target="_blank"
         rel="noopener noreferrer nofollow"
-        className="flex aspect-square items-center justify-center bg-white p-4"
+        tabIndex={-1}
+        aria-hidden="true"
+        className="relative flex aspect-[4/3] items-center justify-center bg-white p-5"
       >
         {product.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- see note above
@@ -40,16 +44,22 @@ export function ProductCard({
             src={product.imageUrl}
             alt=""
             loading="lazy"
-            className="max-h-full max-w-full object-contain"
+            className="max-h-full max-w-full object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]"
           />
         ) : (
-          <span className="text-xs text-neutral-400">bez slike</span>
+          <span className="text-xs text-fg-subtle">bez slike</span>
         )}
+
+        {product.discountPercentage > 0 ? (
+          <span className="absolute left-3 top-3 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold tabular-nums text-accent-fg">
+            −{product.discountPercentage}%
+          </span>
+        ) : null}
       </a>
 
-      <div className="flex flex-1 flex-col gap-2 p-3">
+      <div className="flex flex-1 flex-col gap-2.5 p-3.5">
         {product.brand ? (
-          <span className="text-xs uppercase tracking-wide text-neutral-400">
+          <span className="text-[11px] font-medium uppercase tracking-wider text-fg-subtle">
             {product.brand}
           </span>
         ) : null}
@@ -58,25 +68,35 @@ export function ProductCard({
           href={product.url}
           target="_blank"
           rel="noopener noreferrer nofollow"
-          className="line-clamp-3 text-sm font-medium hover:underline underline-offset-2"
+          className="line-clamp-2 text-[13px] font-medium leading-snug hover:underline underline-offset-2"
         >
           {product.name}
         </a>
 
-        <div className="mt-auto flex items-baseline gap-2 pt-1">
-          <span className="font-semibold">{formatPrice(product.price)}</span>
-          {product.basePrice ? (
-            <span className="text-xs text-neutral-400 line-through">
-              {formatPrice(product.basePrice)}
+        <div className="mt-auto pt-1">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="text-base font-semibold tabular-nums">
+              {formatPrice(product.price)}
             </span>
+            {product.basePrice ? (
+              <span className="text-xs tabular-nums text-fg-subtle line-through">
+                {formatPrice(product.basePrice)}
+              </span>
+            ) : null}
+          </div>
+
+          {saving > 0 ? (
+            <p className="mt-0.5 text-xs font-medium tabular-nums text-good">
+              jeftinije za {formatPrice(saving)}
+            </p>
+          ) : null}
+
+          {!product.inStock ? (
+            <p className="mt-0.5 text-xs text-fg-muted">Trenutno nedostupno</p>
           ) : null}
         </div>
 
-        {!product.inStock ? (
-          <span className="text-xs text-neutral-500">Trenutno nedostupno</span>
-        ) : null}
-
-        {action}
+        {action ? <div className="pt-0.5">{action}</div> : null}
       </div>
     </article>
   )

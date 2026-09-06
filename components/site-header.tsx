@@ -5,22 +5,33 @@ import type { AppUser } from '@/lib/database.types'
 
 export function SiteHeader({ user }: { user: AppUser | null }) {
   return (
-    <header className="border-b border-neutral-200 dark:border-neutral-800">
-      <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-6 py-4">
-        <Link href="/" className="font-semibold tracking-tight">
-          Ananas Price Tracker
+    <header className="sticky top-0 z-10 border-b border-line bg-bg/85 backdrop-blur-md">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
+        <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
+          <span
+            aria-hidden="true"
+            className="grid size-7 place-items-center rounded-md bg-accent-soft text-sm text-accent-fg"
+          >
+            ◎
+          </span>
+          <span>
+            Ananas <span className="text-fg-muted">Tracker</span>
+          </span>
         </Link>
 
-        <nav className="flex items-center gap-3 text-sm">
+        <nav className="flex items-center gap-1.5 text-sm">
           {user ? (
             <>
-              <Link href="/dashboard" className="font-medium hover:underline underline-offset-4">
+              <Link
+                href="/dashboard"
+                className="rounded-md px-3 py-1.5 font-medium text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
+              >
                 Moji proizvodi
               </Link>
               <form action={signOut}>
                 <button
                   type="submit"
-                  className="press rounded-md border border-neutral-300 px-3 py-1.5 font-medium transition-colors hover:border-neutral-400 dark:border-neutral-700 dark:hover:border-neutral-500"
+                  className="press rounded-md border border-line px-3 py-1.5 font-medium transition-colors hover:border-line-strong hover:bg-surface-2"
                 >
                   Odjavi se
                 </button>
@@ -28,14 +39,17 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
             </>
           ) : (
             <>
-              <Link href="/login" className="font-medium hover:underline underline-offset-4">
+              <Link
+                href="/login"
+                className="rounded-md px-3 py-1.5 font-medium text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
+              >
                 Prijava
               </Link>
               <Link
                 href="/signup"
-                className="press rounded-md bg-neutral-900 px-3 py-1.5 font-medium text-white dark:bg-white dark:text-neutral-900"
+                className="press rounded-md bg-fg px-3.5 py-1.5 font-medium text-bg transition-opacity hover:opacity-90"
               >
-                Registracija
+                Registruj se
               </Link>
             </>
           )}

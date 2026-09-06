@@ -14,16 +14,19 @@ type Props = {
   alreadyTracked: boolean
 }
 
+const BASE =
+  'w-full rounded-md px-3 py-1.5 text-center text-xs font-medium transition-colors'
+
 export function TrackButton({ product, signedIn, alreadyTracked }: Props) {
   const [state, formAction, isPending] = useActionState(trackProduct, {} as TrackState)
 
   if (!signedIn) {
     return (
       <Link
-        href="/login"
-        className="rounded-md border border-neutral-300 px-3 py-1.5 text-center text-xs font-medium dark:border-neutral-700"
+        href="/signup"
+        className={`${BASE} press block border border-line text-fg-muted hover:border-line-strong hover:bg-surface-2 hover:text-fg`}
       >
-        Prijavi se da pratiš
+        Prati cenu
       </Link>
     )
   }
@@ -34,9 +37,7 @@ export function TrackButton({ product, signedIn, alreadyTracked }: Props) {
         // Only animate when this turned true from the user's own click. On a
         // page where the product was already tracked, it is just the resting
         // state and animating it would be noise on every load.
-        className={`rounded-md border border-neutral-300 px-3 py-1.5 text-center text-xs font-medium text-neutral-500 dark:border-neutral-700 ${
-          state.tracked ? 'anim-settle' : ''
-        }`}
+        className={`${BASE} block bg-good-soft text-good ${state.tracked ? 'anim-settle' : ''}`}
       >
         Pratiš ✓
       </span>
@@ -53,13 +54,13 @@ export function TrackButton({ product, signedIn, alreadyTracked }: Props) {
         type="submit"
         disabled={isPending}
         aria-busy={isPending}
-        className="press rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition-opacity disabled:opacity-60 dark:bg-white dark:text-neutral-900"
+        className={`${BASE} press bg-fg text-bg hover:opacity-90 disabled:opacity-60`}
       >
-        {isPending ? 'Dodajem…' : 'Prati ovo'}
+        {isPending ? 'Dodajem…' : 'Prati cenu'}
       </button>
 
       {state.error ? (
-        <span role="alert" className="anim-rise text-xs text-red-600 dark:text-red-400">
+        <span role="alert" className="anim-rise text-[11px] leading-snug text-danger">
           {state.error}
         </span>
       ) : null}

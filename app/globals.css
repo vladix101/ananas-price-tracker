@@ -1,35 +1,102 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ---------------------------------------------------------------------------
+   Palette
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+   Neutral warm greys carry the interface; one accent does the talking.
+   Amber is a nod to the "ananas" the site is named for, kept to badges and
+   highlights where it never has to carry body text.
+   Green is reserved — it means "the price went down", nothing else, so it
+   still reads as good news when it appears.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --bg: #fbfbfa;
+  --surface: #ffffff;
+  --surface-2: #f5f5f4;
+  --fg: #1c1917;
+  --fg-muted: #78716c;
+  --fg-subtle: #a8a29e;
+  --line: #e7e5e4;
+  --line-strong: #d6d3d1;
+
+  --accent: #b45309;
+  --accent-soft: #fef3c7;
+  --accent-fg: #78350f;
+
+  --good: #15803d;
+  --good-soft: #dcfce7;
+  --danger: #b91c1c;
+
+  --radius: 0.625rem;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #0c0a09;
+    --surface: #16130f;
+    --surface-2: #1c1917;
+    --fg: #fafaf9;
+    --fg-muted: #a8a29e;
+    --fg-subtle: #78716c;
+    --line: #292524;
+    --line-strong: #44403c;
+
+    --accent: #fbbf24;
+    --accent-soft: #292013;
+    --accent-fg: #fcd34d;
+
+    --good: #4ade80;
+    --good-soft: #14261a;
+    --danger: #f87171;
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-fg: var(--accent-fg);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-danger: var(--danger);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --radius-card: var(--radius);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--fg);
   /* The scaffold hardcoded Arial here, which shadowed the Geist face loaded in
      layout.tsx — including its latin-ext coverage for č ć š ž đ. */
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
+/* Long Serbian product names need to break somewhere sensible. */
+.balance {
+  text-wrap: balance;
+}
+
+/* Focus ring that survives both themes and never relies on colour alone. */
+:where(a, button, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 /* ---------------------------------------------------------------------------
    Motion
-   ---------------------------------------------------------------------------
+
    Emil-weighted: nothing here runs longer than 260ms, and high-frequency or
    always-present chrome (header, nav) is deliberately left static. Jakub's
    enter recipe — opacity + translateY + blur — is the one shared vocabulary,

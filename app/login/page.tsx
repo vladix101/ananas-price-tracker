@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 import { signIn } from '@/app/auth/actions'
 import { AuthForm } from '@/components/auth-form'
+import { AuthLayout } from '@/components/auth-layout'
 
 export const metadata: Metadata = { title: 'Prijava' }
 
@@ -18,13 +19,13 @@ export default async function LoginPage({
   const { next, error } = await searchParams
 
   return (
-    <main className="flex min-h-dvh items-center justify-center px-6 py-16">
+    <AuthLayout>
       <AuthForm
         mode="login"
         action={signIn}
         next={next}
         initialError={error ? LINK_ERRORS[error] : undefined}
       />
-    </main>
+    </AuthLayout>
   )
 }
