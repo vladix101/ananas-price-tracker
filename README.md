@@ -79,8 +79,8 @@ Popuni iz **Project Settings → API**:
 
 | Varijabla | Odakle |
 |---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable key (`sb_publishable_...`) |
+| `SUPABASE_URL` | Project URL |
+| `SUPABASE_PUBLISHABLE_KEY` | Publishable key (`sb_publishable_...`) |
 
 `.env.local` je u `.gitignore`. `service_role` ključ **ne ide** u web aplikaciju —
 treba samo scraperu.
@@ -127,7 +127,6 @@ lib/
   tracking.ts            upiti nad tracked_products (RLS ih sam ograničava)
   ananas/search.ts       parser stranice pretrage ananas.rs
   format.ts              RSD i datumi u sr-RS
-  supabase/client.ts     browser klijent
   supabase/server.ts     server klijent (per-request, nikad modul-level)
   supabase/session.ts    refresh tokena + route guard
   database.types.ts      tipovi šeme
@@ -259,8 +258,8 @@ stoji — pad je događaj, jeftinoća je stanje. Ako je pad ujedno probio
 ## Deploy na Vercel
 
 1. Import repozitorijuma na Vercel.
-2. Environment Variables: `NEXT_PUBLIC_SUPABASE_URL` i
-   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Service role ključ **ne ide ovde** —
+2. Environment Variables: `SUPABASE_URL` i
+   `SUPABASE_PUBLISHABLE_KEY`. Service role ključ **ne ide ovde** —
    web aplikacija ga ne koristi.
 3. Supabase → Authentication → URL Configuration: dodaj
    `https://<domen>/auth/confirm` u *Redirect URLs*, i prebaci *Site URL* na

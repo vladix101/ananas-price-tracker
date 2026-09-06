@@ -12,5 +12,5 @@ function required(name: string): string {
   return value
 }
 
-export const supabaseUrl = () => required('NEXT_PUBLIC_SUPABASE_URL')
-export const supabasePublishableKey = () => required('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY')
+export const supabaseUrl = () => required('SUPABASE_URL')
+export const supabasePublishableKey = () => required('SUPABASE_PUBLISHABLE_KEY')
