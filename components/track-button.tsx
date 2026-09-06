@@ -30,7 +30,14 @@ export function TrackButton({ product, signedIn, alreadyTracked }: Props) {
 
   if (alreadyTracked || state.tracked) {
     return (
-      <span className="rounded-md border border-neutral-300 px-3 py-1.5 text-center text-xs font-medium text-neutral-500 dark:border-neutral-700">
+      <span
+        // Only animate when this turned true from the user's own click. On a
+        // page where the product was already tracked, it is just the resting
+        // state and animating it would be noise on every load.
+        className={`rounded-md border border-neutral-300 px-3 py-1.5 text-center text-xs font-medium text-neutral-500 dark:border-neutral-700 ${
+          state.tracked ? 'anim-settle' : ''
+        }`}
+      >
         Pratiš ✓
       </span>
     )
@@ -45,13 +52,14 @@ export function TrackButton({ product, signedIn, alreadyTracked }: Props) {
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-60 dark:bg-white dark:text-neutral-900"
+        aria-busy={isPending}
+        className="press rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition-opacity disabled:opacity-60 dark:bg-white dark:text-neutral-900"
       >
         {isPending ? 'Dodajem…' : 'Prati ovo'}
       </button>
 
       {state.error ? (
-        <span role="alert" className="text-xs text-red-600 dark:text-red-400">
+        <span role="alert" className="anim-rise text-xs text-red-600 dark:text-red-400">
           {state.error}
         </span>
       ) : null}

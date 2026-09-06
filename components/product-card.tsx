@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 
 import type { AnanasProduct } from '@/lib/ananas/search'
 import { formatPrice } from '@/lib/format'
@@ -12,13 +12,22 @@ import { formatPrice } from '@/lib/format'
 export function ProductCard({
   product,
   action,
+  index = 0,
 }: {
   product: AnanasProduct
   /** Slot for the "Prati ovo" control, so the card stays presentational. */
   action?: ReactNode
+  /** Position in the grid, used to stagger the enter animation. */
+  index?: number
 }) {
   return (
-    <article className="flex flex-col overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800">
+    <article
+      // Results arrive together after a wait, so they enter together — the
+      // stagger only keeps the grid from snapping in as one hard block. It is
+      // capped in CSS so late cards are not left behind.
+      style={{ '--i': index } as CSSProperties}
+      className="anim-rise anim-stagger flex flex-col overflow-hidden rounded-lg border border-neutral-200 transition-[translate,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_1px_2px_-1px_rgba(0,0,0,0.08),0_4px_12px_-2px_rgba(0,0,0,0.08)] dark:border-neutral-800 dark:hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.5)]"
+    >
       <a
         href={product.url}
         target="_blank"

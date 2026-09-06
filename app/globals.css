@@ -22,5 +22,91 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* The scaffold hardcoded Arial here, which shadowed the Geist face loaded in
+     layout.tsx — including its latin-ext coverage for č ć š ž đ. */
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   Motion
+   ---------------------------------------------------------------------------
+   Emil-weighted: nothing here runs longer than 260ms, and high-frequency or
+   always-present chrome (header, nav) is deliberately left static. Jakub's
+   enter recipe — opacity + translateY + blur — is the one shared vocabulary,
+   so everything that appears materialises the same way.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --motion-press: 110ms;
+  --motion-hover: 180ms;
+  --motion-enter: 240ms;
+
+  /* Strong deceleration. Built-in `ease` is too weak to read as intentional. */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  /* The curve Vaul uses for iOS sheets — familiar, no overshoot. */
+  --ease-out-ios: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Confirmation of a state the user just caused. Scale starts at 0.92, never 0
+   — scale(0) reads as a pop rather than a settle. */
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.anim-rise {
+  animation: rise var(--motion-enter) var(--ease-out-quart) both;
+}
+
+.anim-settle {
+  animation: settle 200ms var(--ease-out-ios) both;
+}
+
+/* Grid and list stagger. `--i` is the item index; the cap keeps a 24-result
+   page from taking two seconds to finish arriving. */
+.anim-stagger {
+  animation-delay: min(calc(var(--i, 0) * 22ms), 180ms);
+}
+
+/* Tactile press feedback. A transition, not a keyframe, so rapid clicks blend
+   instead of queueing. */
+.press {
+  transition: transform var(--motion-press) var(--ease-out-quart);
+}
+
+.press:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
 }

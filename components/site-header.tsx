@@ -20,7 +20,7 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
               <form action={signOut}>
                 <button
                   type="submit"
-                  className="rounded-md border border-neutral-300 px-3 py-1.5 font-medium dark:border-neutral-700"
+                  className="press rounded-md border border-neutral-300 px-3 py-1.5 font-medium transition-colors hover:border-neutral-400 dark:border-neutral-700 dark:hover:border-neutral-500"
                 >
                   Odjavi se
                 </button>
@@ -33,7 +33,7 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
               </Link>
               <Link
                 href="/signup"
-                className="rounded-md bg-neutral-900 px-3 py-1.5 font-medium text-white dark:bg-white dark:text-neutral-900"
+                className="press rounded-md bg-neutral-900 px-3 py-1.5 font-medium text-white dark:bg-white dark:text-neutral-900"
               >
                 Registracija
               </Link>

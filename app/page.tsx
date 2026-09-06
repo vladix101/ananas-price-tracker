@@ -36,7 +36,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
           />
           <button
             type="submit"
-            className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-neutral-900"
+            className="press rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-neutral-900"
           >
             Traži
           </button>
@@ -66,7 +66,7 @@ async function SearchResults({ query, signedIn }: { query: string; signedIn: boo
     console.error('[search] %s', query, error)
 
     return (
-      <p role="alert" className="mt-8 text-sm text-red-600 dark:text-red-400">
+      <p role="alert" className="anim-rise mt-8 text-sm text-red-600 dark:text-red-400">
         {message}
       </p>
     )
@@ -74,7 +74,7 @@ async function SearchResults({ query, signedIn }: { query: string; signedIn: boo
 
   if (products.length === 0) {
     return (
-      <p className="mt-8 text-sm text-neutral-500">
+      <p className="anim-rise mt-8 text-sm text-neutral-500">
         Nema rezultata za <strong>{query}</strong>.
       </p>
     )
@@ -85,14 +85,15 @@ async function SearchResults({ query, signedIn }: { query: string; signedIn: boo
 
   return (
     <>
-      <p className="mt-8 text-sm text-neutral-500">
+      <p className="anim-rise mt-8 text-sm text-neutral-500">
         {products.length} rezultata za <strong>{query}</strong>
       </p>
       <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {products.map((product) => (
+        {products.map((product, index) => (
           <ProductCard
             key={product.id}
             product={product}
+            index={index}
             action={
               <TrackButton
                 product={product}

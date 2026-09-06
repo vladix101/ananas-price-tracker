@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
+import type { CSSProperties } from 'react'
 import Link from 'next/link'
 
 import { setTargetPrice, stopTracking } from '@/app/actions/tracking'
 import { PriceSparkline } from '@/components/price-sparkline'
 import { SiteHeader } from '@/components/site-header'
+import { SubmitButton } from '@/components/submit-button'
 import { requireUser } from '@/lib/auth'
 import { formatDateTime, formatPrice } from '@/lib/format'
 import { trackedProductsWithHistory } from '@/lib/tracking'
@@ -42,14 +44,14 @@ export default async function DashboardPage() {
             <p className="text-sm text-neutral-500">Još ne pratiš nijedan proizvod.</p>
             <Link
               href="/"
-              className="mt-4 inline-block rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-neutral-900"
+              className="press mt-4 inline-block rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-neutral-900"
             >
               Pronađi proizvod
             </Link>
           </div>
         ) : (
           <ul className="mt-8 flex flex-col gap-4">
-            {products.map((product) => {
+            {products.map((product, index) => {
               const history = product.price_history
               const latest = history.at(-1)
               const reachedTarget =
@@ -60,7 +62,8 @@ export default async function DashboardPage() {
               return (
                 <li
                   key={product.id}
-                  className="flex flex-col gap-4 rounded-lg border border-neutral-200 p-4 sm:flex-row sm:items-start sm:justify-between dark:border-neutral-800"
+                  style={{ '--i': index } as CSSProperties}
+                  className="anim-rise anim-stagger flex flex-col gap-4 rounded-lg border border-neutral-200 p-4 sm:flex-row sm:items-start sm:justify-between dark:border-neutral-800"
                 >
                   <div className="min-w-0 flex-1">
                     <a
@@ -117,22 +120,22 @@ export default async function DashboardPage() {
                         aria-label={`Ciljna cena za ${product.product_name}`}
                         className="w-full min-w-0 rounded-md border border-neutral-300 px-2 py-1.5 text-xs outline-none focus:border-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:focus:border-neutral-300"
                       />
-                      <button
-                        type="submit"
+                      <SubmitButton
+                        pendingLabel="…"
                         className="rounded-md border border-neutral-300 px-2.5 py-1.5 text-xs font-medium dark:border-neutral-700"
                       >
                         Sačuvaj
-                      </button>
+                      </SubmitButton>
                     </form>
 
                     <form action={stopTracking}>
                       <input type="hidden" name="id" value={product.id} />
-                      <button
-                        type="submit"
+                      <SubmitButton
+                        pendingLabel="Prekidam…"
                         className="w-full rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-600 dark:border-neutral-700 dark:text-neutral-400"
                       >
                         Prestani da pratiš
-                      </button>
+                      </SubmitButton>
                     </form>
                   </div>
                 </li>
