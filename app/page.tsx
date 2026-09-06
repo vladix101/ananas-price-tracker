@@ -18,33 +18,36 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
     <>
       <SiteHeader user={user} />
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-5 pb-20">
-        <section className="py-12 sm:py-16">
+      <main className="pb-safe mx-auto w-full max-w-6xl flex-1 px-4 sm:px-5">
+        <section className="py-8 sm:py-16">
           <p className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-fg-muted">
             <span className="size-1.5 rounded-full bg-good" aria-hidden="true" />
             Prati cene sa ananas.rs
           </p>
 
-          <h1 className="balance max-w-2xl text-3xl font-semibold leading-tight tracking-tight sm:text-[2.6rem]">
+          <h1 className="balance max-w-2xl text-[2rem] font-semibold leading-[1.1] tracking-tight sm:text-[2.75rem]">
             Ne kupuj po punoj ceni.
           </h1>
           <p className="balance mt-3 max-w-xl text-[15px] leading-relaxed text-fg-muted">
-            Pronađi proizvod, zaprati ga, i stiže ti mejl čim cena padne ili
-            dostigne iznos koji si zadao. Besplatno za tri proizvoda.
+            Zaprati proizvod sa ananas.rs i stiže ti mejl čim cena padne.
+            Besplatno za tri proizvoda.
           </p>
 
-          <form method="get" role="search" className="mt-7 flex max-w-xl gap-2">
+          <form method="get" role="search" className="mt-6 flex max-w-xl gap-2 sm:mt-7">
             <input
               name="q"
               type="search"
               defaultValue={query}
-              placeholder="npr. laptop, espresso aparat, Dyson…"
+              placeholder="laptop, espresso aparat, Dyson…"
               aria-label="Pretraga proizvoda"
-              className="min-w-0 flex-1 rounded-card border border-line bg-surface px-4 py-2.5 text-sm shadow-[0_1px_2px_rgb(0_0_0/0.04)] outline-none transition-colors placeholder:text-fg-subtle focus:border-fg-muted"
+              enterKeyHint="search"
+              autoCapitalize="none"
+              autoCorrect="off"
+              className="tap min-w-0 flex-1 rounded-card border border-line bg-surface px-4 shadow-[0_1px_2px_rgb(0_0_0/0.04)] outline-none transition-colors placeholder:text-fg-subtle focus:border-fg-muted"
             />
             <button
               type="submit"
-              className="press shrink-0 rounded-card bg-fg px-5 py-2.5 text-sm font-medium text-bg transition-opacity hover:opacity-90"
+              className="press tap shrink-0 rounded-card bg-fg px-5 text-sm font-medium text-bg transition-opacity sm:hover:opacity-90"
             >
               Traži
             </button>
@@ -78,8 +81,8 @@ function Section({
 }) {
   return (
     <section>
-      <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t border-line pt-6">
-        <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
+      <div className="mb-3.5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t border-line pt-5 sm:mb-4 sm:pt-6">
+        <h2 className="text-base font-semibold tracking-tight sm:text-lg">{title}</h2>
         {hint ? <p className="text-sm text-fg-muted">{hint}</p> : null}
       </div>
       {children}
@@ -89,7 +92,9 @@ function Section({
 
 function Grid({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-4">{children}</div>
+    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3.5 lg:grid-cols-4">
+      {children}
+    </div>
   )
 }
 
@@ -114,7 +119,7 @@ async function SaleSection({ signedIn }: { signedIn: boolean }) {
   const tracked = signedIn ? await activeTrackedUrls() : new Set<string>()
 
   return (
-    <Section title="Trenutno na sniženju" hint="Sa ananas.rs, osvežava se na pola sata">
+    <Section title="Trenutno na sniženju" hint="sa ananas.rs">
       <Grid>
         {products.map((product, index) => (
           <ProductCard
@@ -202,7 +207,7 @@ function GridSkeleton({ count, label }: { count: number; label: string }) {
         {Array.from({ length: count }, (_, i) => (
           <div
             key={i}
-            className="h-72 rounded-card border border-line bg-surface-2"
+            className="h-64 rounded-card border border-line bg-surface-2 sm:h-72"
             aria-hidden="true"
           />
         ))}

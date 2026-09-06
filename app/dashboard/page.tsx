@@ -13,7 +13,7 @@ import { trackedProductsWithHistory } from '@/lib/tracking'
 export const metadata: Metadata = { title: 'Moji proizvodi' }
 
 const INPUT =
-  'w-full min-w-0 rounded-md border border-line bg-surface px-2.5 py-1.5 text-xs tabular-nums outline-none transition-colors placeholder:text-fg-subtle focus:border-fg-muted'
+  'tap w-full min-w-0 rounded-md border border-line bg-surface px-3 tabular-nums outline-none transition-colors placeholder:text-fg-subtle focus:border-fg-muted'
 
 export default async function DashboardPage() {
   const user = await requireUser()
@@ -23,11 +23,11 @@ export default async function DashboardPage() {
     <>
       <SiteHeader user={user} />
 
-      <main className="mx-auto w-full max-w-4xl flex-1 px-5 py-10 pb-20">
+      <main className="pb-safe mx-auto w-full max-w-4xl flex-1 px-4 py-7 sm:px-5 sm:py-10">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Moji proizvodi</h1>
-            <p className="mt-1 text-sm text-fg-muted">{user.email}</p>
+            <h1 className="text-[1.6rem] font-semibold tracking-tight sm:text-2xl">Moji proizvodi</h1>
+            <p className="mt-0.5 truncate text-sm text-fg-muted">{user.email}</p>
           </div>
 
           <div className="flex flex-wrap gap-1.5 text-xs">
@@ -69,7 +69,7 @@ export default async function DashboardPage() {
                 <li
                   key={product.id}
                   style={{ '--i': index } as CSSProperties}
-                  className="anim-rise anim-stagger flex flex-col gap-5 rounded-card border border-line bg-surface p-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6"
+                  className="anim-rise anim-stagger flex flex-col gap-4 rounded-card border border-line bg-surface p-3.5 sm:flex-row sm:items-start sm:justify-between sm:gap-6 sm:p-4"
                 >
                   <div className="min-w-0 flex-1">
                     <a
@@ -112,7 +112,7 @@ export default async function DashboardPage() {
                     </div>
                   </div>
 
-                  <div className="flex shrink-0 flex-col gap-2 sm:w-48">
+                  <div className="flex shrink-0 flex-col gap-2 border-t border-line pt-3.5 sm:w-48 sm:border-0 sm:pt-0">
                     <form action={setTargetPrice} className="flex gap-1.5">
                       <input type="hidden" name="id" value={product.id} />
                       <input
@@ -128,7 +128,7 @@ export default async function DashboardPage() {
                       />
                       <SubmitButton
                         pendingLabel="…"
-                        className="shrink-0 rounded-md border border-line px-2.5 py-1.5 text-xs font-medium hover:border-line-strong hover:bg-surface-2"
+                        className="tap shrink-0 rounded-md border border-line px-3.5 text-xs font-medium sm:hover:border-line-strong sm:hover:bg-surface-2"
                       >
                         Sačuvaj
                       </SubmitButton>
@@ -138,7 +138,7 @@ export default async function DashboardPage() {
                       <input type="hidden" name="id" value={product.id} />
                       <SubmitButton
                         pendingLabel="Prekidam…"
-                        className="w-full rounded-md px-3 py-1.5 text-xs font-medium text-fg-muted hover:bg-surface-2 hover:text-danger"
+                        className="tap w-full rounded-md border border-line px-3 text-xs font-medium text-fg-muted sm:border-0 sm:hover:bg-surface-2 sm:hover:text-danger"
                       >
                         Prestani da pratiš
                       </SubmitButton>

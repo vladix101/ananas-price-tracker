@@ -38,7 +38,7 @@ const COPY = {
 } as const
 
 const INPUT =
-  'w-full rounded-card border border-line bg-surface px-3.5 py-2.5 text-sm outline-none transition-colors placeholder:text-fg-subtle focus:border-fg-muted'
+  'tap w-full rounded-card border border-line bg-surface px-3.5 outline-none transition-colors placeholder:text-fg-subtle focus:border-fg-muted'
 
 export function AuthForm({ mode, action, next, initialError }: Props) {
   const [state, formAction, isPending] = useActionState(action, {} as AuthState)
@@ -68,7 +68,7 @@ export function AuthForm({ mode, action, next, initialError }: Props) {
   }
 
   return (
-    <div className="rounded-card border border-line bg-surface p-6 sm:p-7">
+    <div className="rounded-card border border-line bg-surface p-5 sm:p-7">
       <h1 className="text-xl font-semibold tracking-tight">{copy.title}</h1>
       <p className="mt-1 text-sm text-fg-muted">{copy.lead}</p>
 
@@ -113,7 +113,7 @@ export function AuthForm({ mode, action, next, initialError }: Props) {
           type="submit"
           disabled={isPending}
           aria-busy={isPending}
-          className="press mt-1 rounded-card bg-fg px-4 py-2.5 text-sm font-medium text-bg transition-opacity hover:opacity-90 disabled:opacity-60"
+          className="press tap mt-1 rounded-card bg-fg px-4 text-sm font-medium text-bg transition-opacity disabled:opacity-60 sm:hover:opacity-90"
         >
           {isPending ? copy.pending : copy.submit}
         </button>

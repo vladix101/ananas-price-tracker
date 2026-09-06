@@ -6,9 +6,12 @@ import { AuthLayout } from '@/components/auth-layout'
 
 export const metadata: Metadata = { title: 'Prijava' }
 
-const LINK_ERRORS: Record<string, string> = {
+const LINK_MESSAGES: Record<string, string> = {
   'link-nevazeci': 'Link za potvrdu nije ispravan. Pokušaj ponovo da se registruješ.',
-  'link-istekao': 'Link za potvrdu je istekao. Zatraži novi.',
+  'link-istekao': 'Link za potvrdu je istekao. Registruj se ponovo da dobiješ nov.',
+  // Not a failure: the address is confirmed, only the session handoff did not
+  // happen (a prefetched or reopened link).
+  'potvrdjen-prijavi-se': 'Mejl je potvrđen. Prijavi se da nastaviš.',
 }
 
 export default async function LoginPage({
@@ -24,7 +27,7 @@ export default async function LoginPage({
         mode="login"
         action={signIn}
         next={next}
-        initialError={error ? LINK_ERRORS[error] : undefined}
+        initialError={error ? LINK_MESSAGES[error] : undefined}
       />
     </AuthLayout>
   )

@@ -74,12 +74,48 @@
   --radius-card: var(--radius);
 }
 
+html {
+  /* Stop iOS from inflating text in landscape. */
+  -webkit-text-size-adjust: 100%;
+  /* No rubber-band flash of a different colour past the page ends. */
+  overscroll-behavior-y: none;
+}
+
 body {
   background: var(--bg);
   color: var(--fg);
   /* The scaffold hardcoded Arial here, which shadowed the Geist face loaded in
      layout.tsx — including its latin-ext coverage for č ć š ž đ. */
   font-family: var(--font-sans), system-ui, sans-serif;
+  /* A grey flash on every tap is the clearest "this is a website, not an app"
+     tell on Android. The :active states below give better feedback. */
+  -webkit-tap-highlight-color: transparent;
+  /* One long product name must never make the whole page pan sideways. */
+  overflow-x: hidden;
+}
+
+/*
+ * iOS Safari zooms the viewport whenever a focused input renders below 16px,
+ * and never zooms back out. Every text field is therefore 16px on phones and
+ * only drops to 14px from `sm` up, where no such behaviour exists.
+ */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+@media (min-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 0.875rem;
+  }
+}
+
+/* Room for the home indicator / notch on the pages that reach the edges. */
+.pb-safe {
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
 }
 
 /* Long Serbian product names need to break somewhere sensible. */
@@ -164,6 +200,21 @@ body {
 
 .press:active {
   transform: scale(0.97);
+}
+
+/*
+ * Touch targets. 44px is the smallest reliably hittable control on a phone;
+ * below that the miss rate climbs sharply. Desktop can be denser because a
+ * cursor is precise.
+ */
+.tap {
+  min-height: 2.75rem;
+}
+
+@media (min-width: 640px) {
+  .tap {
+    min-height: 2.25rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

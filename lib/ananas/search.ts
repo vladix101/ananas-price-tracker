@@ -15,7 +15,12 @@ import 'server-only'
 const SEARCH_URL = 'https://ananas.rs/search'
 const SALE_URL = 'https://ananas.rs/akcija'
 const PRODUCT_BASE = 'https://ananas.rs/proizvod'
-const ASSET_BASE = 'https://ananas.rs'
+/**
+ * Images live on a separate origin. Building them off https://ananas.rs 404s
+ * on every single one — confirmed against og:image and the JSON-LD `image`
+ * field on a product page, both of which point here.
+ */
+const ASSET_BASE = 'https://static.ananas.rs'
 
 /**
  * A real browser UA. Sending a bot string here gets a different (JS-only) page
@@ -104,6 +109,7 @@ type AlgoliaHit = {
     name?: unknown
     slug?: unknown
     coverImageUrl?: unknown
+    thumbnailUrl?: unknown
     brand?: unknown
   }
 }
@@ -117,7 +123,12 @@ function toProduct(hit: AlgoliaHit): AnanasProduct | null {
   // A hit without these cannot be tracked, so it is not worth showing.
   if (!id || !name || !slug || price === null) return null
 
+  // Prefer the thumbnail: ~7 KB against ~56 KB for the full asset, and it is
+  // never displayed larger than a grid cell. Twelve cards is the difference
+  // between 80 KB and a megabyte on a phone.
+  const thumb = typeof hit.product?.thumbnailUrl === 'string' ? hit.product.thumbnailUrl : null
   const cover = typeof hit.product?.coverImageUrl === 'string' ? hit.product.coverImageUrl : null
+  const image = thumb ?? cover
   const basePrice = typeof hit.basePrice === 'number' ? hit.basePrice : null
 
   return {
@@ -129,7 +140,7 @@ function toProduct(hit: AlgoliaHit): AnanasProduct | null {
     basePrice: basePrice !== null && basePrice > price ? basePrice : null,
     discountPercentage:
       typeof hit.discountPercentage === 'number' ? hit.discountPercentage : 0,
-    imageUrl: cover ? `${ASSET_BASE}${cover}` : null,
+    imageUrl: image ? `${ASSET_BASE}${image}` : null,
     brand: typeof hit.product?.brand === 'string' ? hit.product.brand : null,
     inStock: hit.onStock !== false,
   }

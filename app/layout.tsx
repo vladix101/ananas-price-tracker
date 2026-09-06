@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -19,6 +19,22 @@ export const metadata: Metadata = {
     template: "%s · Ananas Price Tracker",
   },
   description: "Prati cene proizvoda sa ananas.rs i dobij mejl kada padnu.",
+  // Phones render the page under the status bar; this keeps that strip in the
+  // app's own colour instead of white-on-dark.
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Ananas Tracker" },
+};
+
+export const viewport: Viewport = {
+  // No maximumScale / userScalable: false — pinch-zoom is an accessibility
+  // affordance, and the 16px input rule below removes the reason people
+  // disable it.
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fbfbfa" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c0a09" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

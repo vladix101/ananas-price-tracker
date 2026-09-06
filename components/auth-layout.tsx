@@ -13,10 +13,10 @@ const POINTS = [
  */
 export function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col justify-center px-5 py-12">
+    <main className="pb-safe mx-auto flex min-h-dvh w-full max-w-5xl flex-col justify-center px-4 py-8 sm:px-5 sm:py-12">
       <Link
         href="/"
-        className="mb-8 inline-flex items-center gap-2 self-start font-semibold tracking-tight"
+        className="mb-6 inline-flex sm:mb-8 items-center gap-2 self-start font-semibold tracking-tight"
       >
         <span
           aria-hidden="true"
@@ -29,13 +29,13 @@ export function AuthLayout({ children }: { children: ReactNode }) {
         </span>
       </Link>
 
-      <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="order-2 lg:order-1">
-          <h2 className="balance text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+          <h2 className="balance text-xl font-semibold leading-tight tracking-tight sm:text-3xl">
             Kupi kad pojeftini, ne kad se setiš.
           </h2>
 
-          <ol className="mt-7 flex flex-col gap-5">
+          <ol className="mt-5 flex flex-col gap-4 sm:mt-7 sm:gap-5">
             {POINTS.map(([title, body], i) => (
               <li key={title} className="flex gap-3.5">
                 <span
@@ -52,7 +52,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
             ))}
           </ol>
 
-          <p className="mt-7 text-sm text-fg-subtle">
+          <p className="mt-6 text-sm text-fg-subtle sm:mt-7">
             Tri proizvoda besplatno. Bez kartice.
           </p>
         </div>
