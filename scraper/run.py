@@ -20,7 +20,14 @@ import requests
 from dotenv import load_dotenv
 
 from ananas import ProductGone, ScrapeError, fetch_price
-from notifier import ConsoleNotifier, GmailNotifier, Message, Notifier, Recipient
+from notifier import (
+    ConsoleNotifier,
+    GmailNotifier,
+    Message,
+    Notifier,
+    Recipient,
+    ResendNotifier,
+)
 from store import Store, TrackedProduct
 
 log = logging.getLogger("scraper")
@@ -37,9 +44,70 @@ def _require_env(name: str) -> str:
     return value
 
 
+def _build_notifier() -> Notifier:
+    """Pick a channel from what is configured.
+
+    Resend wins when its key is present: the sender is a domain you control, so
+    SPF/DKIM/DMARC align and the mail reaches inboxes rather than spam. Gmail
+    stays as the fallback for setups without a domain.
+    """
+    resend_key = os.environ.get("RESEND_API_KEY")
+    if resend_key:
+        sender = os.environ.get("MAIL_FROM")
+        if not sender:
+            sys.exit(
+                "RESEND_API_KEY je postavljen ali MAIL_FROM nije. "
+                'Primer: MAIL_FROM="Ananas Tracker <alerts@tvoj-domen.rs>"'
+            )
+        log.info("kanal: Resend (%s)", sender)
+        return ResendNotifier(resend_key, sender)
+
+    log.info("kanal: Gmail SMTP")
+    return GmailNotifier(_require_env("GMAIL_ADDRESS"), _require_env("GMAIL_APP_PASSWORD"))
+
+
 def _format_rsd(value: Decimal) -> str:
     """69999 -> '69.999 RSD' — matches how the web app renders prices."""
     return f"{value:,.0f}".replace(",", ".") + " RSD"
+
+
+def _html_body(product: TrackedProduct, old: Decimal, new: Decimal, hit_target: bool) -> str:
+    """HTML alternative for the drop notification.
+
+    Inline styles only: mail clients strip <style> blocks and know nothing of
+    CSS variables. Single column, no tables, no media queries — that survives
+    Gmail, Outlook and a phone without per-client tweaking.
+    """
+    target_line = (
+        '<p style="margin:0 0 4px;font-size:14px;color:#15803d">'
+        f"Dostignuta je i tvoja ciljna cena od {_format_rsd(product.target_price)}."
+        "</p>"
+        if hit_target
+        else ""
+    )
+    return (
+        '<div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;'
+        'max-width:520px;margin:0 auto;padding:24px;color:#18181b">'
+        '<p style="margin:0 0 20px;font-size:13px;color:#71717a">Ananas Tracker</p>'
+        '<h1 style="margin:0 0 16px;font-size:19px;line-height:1.35;font-weight:600">'
+        f"{product.product_name}</h1>"
+        '<p style="margin:0 0 6px">'
+        '<span style="font-size:30px;font-weight:600;letter-spacing:-0.02em">'
+        f"{_format_rsd(new)}</span>"
+        '<span style="font-size:15px;color:#a1a1aa;text-decoration:line-through;'
+        f'margin-left:10px">{_format_rsd(old)}</span></p>'
+        '<p style="margin:0 0 4px;font-size:14px;color:#15803d;font-weight:500">'
+        f"Jeftinije za {_format_rsd(old - new)}</p>"
+        f"{target_line}"
+        '<p style="margin:24px 0 0">'
+        f'<a href="{product.ananas_url}" '
+        'style="display:inline-block;background:#18181b;color:#ffffff;'
+        "text-decoration:none;padding:11px 20px;border-radius:10px;"
+        'font-size:14px;font-weight:500">Pogledaj na ananas.rs</a></p>'
+        '<p style="margin:28px 0 0;font-size:12px;color:#a1a1aa;line-height:1.6">'
+        "Dobio si ovaj mejl jer pratiš ovaj proizvod na Ananas Trackeru.</p>"
+        "</div>"
+    )
 
 
 def build_message(product: TrackedProduct, old: Decimal, new: Decimal) -> Message:
@@ -62,7 +130,11 @@ def build_message(product: TrackedProduct, old: Decimal, new: Decimal) -> Messag
         if hit_target
         else f"Cena pala: {product.product_name[:60]}"
     )
-    return Message(subject=subject, body="\n".join(lines))
+    return Message(
+        subject=subject,
+        body="\n".join(lines),
+        html=_html_body(product, old, new, hit_target),
+    )
 
 
 def should_notify(product: TrackedProduct, new_price: Decimal) -> bool:
@@ -155,11 +227,7 @@ def main() -> int:
 
     store = Store(_require_env("SUPABASE_URL"), _require_env("SUPABASE_SERVICE_ROLE_KEY"))
 
-    notifier: Notifier = (
-        ConsoleNotifier()
-        if args.dry_run
-        else GmailNotifier(_require_env("GMAIL_ADDRESS"), _require_env("GMAIL_APP_PASSWORD"))
-    )
+    notifier = ConsoleNotifier() if args.dry_run else _build_notifier()
 
     products = store.active_products()
     log.info("aktivnih proizvoda: %s%s", len(products), " (dry-run)" if args.dry_run else "")

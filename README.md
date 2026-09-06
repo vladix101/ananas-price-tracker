@@ -233,8 +233,40 @@ Dodaj u **Settings → Secrets and variables → Actions**:
 |---|---|
 | `SUPABASE_URL` | `https://<ref>.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | secret key (`sb_secret_...`) |
-| `GMAIL_ADDRESS` | Gmail adresa sa kojom je napravljen App Password |
+| `RESEND_API_KEY` | `re_...` — ako se koristi Resend |
+| `MAIL_FROM` | `Ananas Tracker <alerts@tvoj-domen.rs>` |
+| `GMAIL_ADDRESS` | Gmail adresa (fallback kanal) |
 | `GMAIL_APP_PASSWORD` | App Password bez razmaka |
+
+### Izbor kanala za mejl
+
+`run.py` bira kanal iz onoga što je podešeno, bez izmene koda:
+
+| Uslov | Kanal |
+|---|---|
+| `RESEND_API_KEY` postoji | **Resend** (traži i `MAIL_FROM`) |
+| inače | Gmail SMTP |
+| `--dry-run` | ništa se ne šalje, samo se ispisuje |
+
+**Zašto Resend.** Gmail može da šalje samo kao lična adresa, dok linkovi vode
+na drugi domen — to je obrazac koji filteri čitaju kao phishing, i zato mejlovi
+završavaju u spamu. Sa sopstvenim domenom pošiljalac i link dele domen, SPF,
+DKIM i DMARC se poklapaju, i mejl ide u inbox.
+
+**Podešavanje:**
+
+1. [resend.com](https://resend.com) → **Domains** → **Add Domain** → unesi svoj domen
+2. Resend ispiše tri DNS zapisa (SPF, DKIM, DMARC) — dodaj ih kod registrara
+3. Sačekaj verifikaciju (obično par minuta), pa **API Keys** → **Create**
+4. Ubaci `RESEND_API_KEY` i `MAIL_FROM` u GitHub Actions secrets
+
+**Bez domena** možeš da testiraš sa `MAIL_FROM=onboarding@resend.dev`, ali taj
+pošiljalac šalje **isključivo na adresu vlasnika Resend naloga**. Dobro za
+proveru da integracija radi, neupotrebljivo za prave korisnike.
+
+**Supabase potvrdni mejlovi** su zasebna stvar — oni ne prolaze kroz `run.py`.
+Za njih u **Project Settings → Authentication → SMTP Settings** upiši
+`smtp.resend.com`, port `465`, username `resend`, password isti API ključ.
 
 ### Kada se šalje mejl
 
