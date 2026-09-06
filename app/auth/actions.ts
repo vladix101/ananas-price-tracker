@@ -84,5 +84,8 @@ export async function signOut() {
   await supabase.auth.signOut()
 
   revalidatePath('/', 'layout')
-  redirect('/login')
+  // Home, not /login. Signing out is not an attempt to sign in — the homepage
+  // in its signed-out state (intro + sale grid) is somewhere to be, while a
+  // login form is a dead end for someone who just left.
+  redirect('/')
 }

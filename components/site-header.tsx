@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
-import { signOut } from '@/app/auth/actions'
 import { IconBookmark } from '@/components/icons'
+import { SignOutButton } from '@/components/sign-out-button'
 import type { AppUser } from '@/lib/database.types'
 
 export function SiteHeader({ user }: { user: AppUser | null }) {
@@ -38,14 +38,7 @@ export function SiteHeader({ user }: { user: AppUser | null }) {
                 <span className="sm:hidden">Praćeni</span>
                 <span className="hidden sm:inline">Moji proizvodi</span>
               </Link>
-              <form action={signOut}>
-                <button
-                  type="submit"
-                  className="press tap flex items-center rounded-lg border border-line px-2.5 text-sm font-medium transition-colors sm:px-3 sm:hover:border-line-strong sm:hover:bg-surface-2"
-                >
-                  Odjava
-                </button>
-              </form>
+              <SignOutButton />
             </>
           ) : (
             <>
