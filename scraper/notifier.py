@@ -25,6 +25,33 @@ RESEND_ENDPOINT = "https://api.resend.com/emails"
 RESEND_TIMEOUT_SECONDS = 20
 
 
+def _bare_address(sender: str) -> str:
+    """'Ananas Tracker <a@b.rs>' -> 'a@b.rs'. Headers below need the address
+    alone; the display name is only for the From line."""
+    if "<" in sender and ">" in sender:
+        return sender[sender.index("<") + 1 : sender.index(">")].strip()
+    return sender.strip()
+
+
+def _list_headers(sender_address: str) -> dict[str, str]:
+    """Headers every automated mail should carry.
+
+    List-Unsubscribe is the one that matters: mailbox providers count its
+    absence against automated senders, and Gmail surfaces a native
+    "unsubscribe" affordance when it is present, which is a far better signal
+    than a user reaching for the spam button.
+
+    A mailto: target rather than a one-click HTTPS endpoint — honest at this
+    volume, and it needs no route or token scheme. Swap in an HTTPS URL with
+    List-Unsubscribe-Post if the list ever grows.
+    """
+    return {
+        "List-Unsubscribe": f"<mailto:{sender_address}?subject=unsubscribe>",
+        "Auto-Submitted": "auto-generated",
+        "X-Auto-Response-Suppress": "All",
+    }
+
+
 @dataclass(frozen=True)
 class Recipient:
     """Who to notify. Kept channel-neutral on purpose — a Telegram notifier
@@ -81,11 +108,14 @@ class ResendNotifier(Notifier):
         if self._skip(user):
             return
 
+        address = _bare_address(self._sender)
         payload: dict[str, object] = {
             "from": self._sender,
             "to": [user.email],
+            "reply_to": address,
             "subject": message.subject,
             "text": message.body,
+            "headers": _list_headers(address),
         }
         if message.html:
             payload["html"] = message.html
@@ -123,7 +153,10 @@ class GmailNotifier(Notifier):
         email = EmailMessage()
         email["From"] = f"Ananas Price Tracker <{self._address}>"
         email["To"] = user.email
+        email["Reply-To"] = self._address
         email["Subject"] = message.subject
+        for name, value in _list_headers(self._address).items():
+            email[name] = value
         email.set_content(message.body)
         if message.html:
             email.add_alternative(message.html, subtype="html")
