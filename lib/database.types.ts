@@ -93,6 +93,10 @@ export type Database = {
     }
     Views: Record<never, never>
     Functions: {
+      ensure_profile: {
+        Args: Record<string, never>
+        Returns: Database['public']['Tables']['users']['Row'] | null
+      }
       is_admin: { Args: Record<string, never>; Returns: boolean }
       free_plan_limit: { Args: Record<string, never>; Returns: number }
     }
