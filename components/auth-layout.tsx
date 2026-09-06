@@ -20,13 +20,11 @@ export function AuthLayout({ children }: { children: ReactNode }) {
       >
         <span
           aria-hidden="true"
-          className="grid size-7 place-items-center rounded-md bg-fg text-sm text-bg"
+          className="grid size-7 place-items-center rounded-lg bg-fg text-[13px] font-bold text-bg"
         >
-          ◎
+          A
         </span>
-        <span>
-          Ananas <span className="text-fg-muted">Tracker</span>
-        </span>
+        <span>Ananas Tracker</span>
       </Link>
 
       <div className="grid items-start gap-8 sm:gap-10 lg:grid-cols-[minmax(0,1fr)_22rem]">

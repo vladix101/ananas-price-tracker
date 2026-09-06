@@ -1,7 +1,10 @@
 import { Suspense } from 'react'
 
 import { ProductCard } from '@/components/product-card'
+import { HowItWorks } from '@/components/how-it-works'
+import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
+import { IconSearch } from '@/components/icons'
 import { TrackButton } from '@/components/track-button'
 import { getCurrentUser } from '@/lib/auth'
 import { AnanasScrapeError, saleProducts, searchAnanas } from '@/lib/ananas/search'
@@ -20,39 +23,50 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
 
       <main className="pb-safe mx-auto w-full max-w-6xl flex-1 px-4 sm:px-5">
         <section className="py-8 sm:py-16">
-          <p className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-fg-muted">
-            <span className="size-1.5 rounded-full bg-good" aria-hidden="true" />
-            Prati cene sa ananas.rs
+          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-line bg-surface py-1 pl-1.5 pr-3 text-xs font-medium text-fg-muted">
+            <span className="rounded-full bg-good-soft px-2 py-0.5 text-[11px] font-semibold text-good">
+              Besplatno
+            </span>
+            do 3 proizvoda
           </p>
 
           <h1 className="balance max-w-2xl text-[2rem] font-semibold leading-[1.1] tracking-tight sm:text-[2.75rem]">
             Ne kupuj po punoj ceni.
           </h1>
-          <p className="balance mt-3 max-w-xl text-[15px] leading-relaxed text-fg-muted">
-            Zaprati proizvod sa ananas.rs i stiže ti mejl čim cena padne.
-            Besplatno za tri proizvoda.
+          <p className="balance mt-3.5 max-w-lg text-[15px] leading-relaxed text-fg-muted sm:text-base">
+            Zaprati bilo koji proizvod sa ananas.rs. Proveravamo cenu na svakih
+            šest sati i šaljemo ti mejl čim padne.
           </p>
 
           <form method="get" role="search" className="mt-6 flex max-w-xl gap-2 sm:mt-7">
-            <input
-              name="q"
-              type="search"
-              defaultValue={query}
-              placeholder="laptop, espresso aparat, Dyson…"
-              aria-label="Pretraga proizvoda"
-              enterKeyHint="search"
-              autoCapitalize="none"
-              autoCorrect="off"
-              className="tap min-w-0 flex-1 rounded-card border border-line bg-surface px-4 shadow-[0_1px_2px_rgb(0_0_0/0.04)] outline-none transition-colors placeholder:text-fg-subtle focus:border-fg-muted"
-            />
+            <div className="relative flex min-w-0 flex-1 items-center">
+              <IconSearch className="pointer-events-none absolute left-3.5 text-fg-subtle" />
+              <input
+                name="q"
+                type="search"
+                defaultValue={query}
+                placeholder="laptop, espresso aparat, Dyson…"
+                aria-label="Pretraga proizvoda"
+                enterKeyHint="search"
+                autoCapitalize="none"
+                autoCorrect="off"
+                className="tap w-full rounded-xl border border-line bg-surface pl-10 pr-3.5 shadow-[0_1px_2px_rgb(0_0_0/0.04)] outline-none transition-colors placeholder:text-fg-subtle focus:border-fg-muted focus:shadow-[0_0_0_3px_rgb(24_24_27/0.06)]"
+              />
+            </div>
             <button
               type="submit"
-              className="press tap shrink-0 rounded-card bg-fg px-5 text-sm font-medium text-bg transition-opacity sm:hover:opacity-90"
+              className="press tap shrink-0 rounded-xl bg-fg px-5 text-sm font-medium text-bg transition-opacity sm:hover:opacity-90"
             >
               Traži
             </button>
           </form>
         </section>
+
+        {!query && !signedIn ? (
+          <div className="pb-9 sm:pb-12">
+            <HowItWorks />
+          </div>
+        ) : null}
 
         {query ? (
           // key: a new query must restart the boundary, not reuse the resolved one
@@ -65,6 +79,8 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
           </Suspense>
         )}
       </main>
+
+      <SiteFooter />
     </>
   )
 }
